@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title >Web Scraping</title>
+    <link rel="icon" href="./static/ico.png">
+    <style>
+        body {
+            background-image: url(./static/new.jpg);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        h1 {
+            text-align: center;
+            padding: 20px;
+            background-color: darkblue;
+            color: white;
+        }
+
+        form {
+            text-align: center;
+            padding: 20px;
+        }
+
+        input[type="url"] {
+            width: 80%;
+            padding: 10px;
+            background: white;
+            color: black;
+        }
+
+        input[type="submit"] {
+            background-color: darkblue;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .butt:hover {
+            opacity: 0.5;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .box {
+            flex: 1;
+            padding: 20px;
+            background-color: white;
+            margin: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 10px;
+        }
+
+        span {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Web Scraping Tool</h1>
+    <form action="/scrape" method="POST">
+        <input placeholder="Enter The URL..." type="url" name="url" required><br><br>
+        <input class="butt" type="submit" value="Scrape">
+    </form>
+    <div class="container">
+        <div class="box">
+            <h2>Email Addresses:</h2>
+            <ul id="email"></ul>
+        </div>
+        <div class="box">
+            <h2>Mobile Number:</h2>
+            <ul id="mobile"></ul>
+        </div>
+        <div class="box">
+            <h2>Social Media Links:</h2>
+            <ul id="social"></ul>
+        </div>
+    </div>
+    <script>
+        // JavaScript code to update the extracted data
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailList = document.getElementById('email');
+            const mobileList = document.getElementById('mobile');
+            const socialList = document.getElementById('social');
+
+            document.querySelector('form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const url = e.target.querySelector('input').value;
+                const response = await fetch('/scrape', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `url=${url}`
+                });
+                const data = await response.json();
+
+                // Update email list
+                if (Array.isArray(data.email)) {
+                    emailList.innerHTML = data.email.map(email => `<li>${email}</li>`).join('');
+                } else {
+                    emailList.innerHTML = '<li>No email addresses found</li>';
+                }
+
+                // Update mobile list
+                if (Array.isArray(data.mobile)) {
+                    mobileList.innerHTML = data.mobile.map(mobile => `<li>${mobile}</li>`).join('');
+                } else {
+                    mobileList.innerHTML = '<li>No mobile numbers found</li>';
+                }
+
+                // Update social media links list
+                if (Array.isArray(data.social)) {
+                    socialList.innerHTML = data.social.map(link => `<li><a href="${link}" target="_blank">${link}</a></li>`).join('');
+                } else {
+                    socialList.innerHTML = '<li>No social media links found</li>';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

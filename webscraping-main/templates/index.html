@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Page</title>
+        <link rel="icon" href="./static/ico.png">
+    <style>
+        body {
+            background-image: url(static/user.jpg);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 20px;
+            background-color: darkblue;
+            color: white;
+        }
+
+        button {
+            padding: 15px;
+            cursor: pointer;
+            margin-left:2200px;
+            margin-buttom:30px;
+            top:10px;
+
+        }
+        #url {
+           text-aligin:center;
+            padding-right:300px;
+            padding-top:15px;
+            padding-bottom:15px;
+            margin-left: 900px; /* Adjust the margin-left value to move the search bar to the right */
+        }
+
+        #scrapeButton {
+            padding: 15px;
+            cursor: pointer;
+            margin-left:1080px;   
+        }
+        
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        form {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 00px;
+        }
+
+
+     
+
+        .container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .box {
+            flex: 1;
+            padding: 20px;
+            background-color: white;
+            margin: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the User Page</h1>
+
+    <button onclick="openLoginModal()">Login</button>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <h2>Login</h2>
+            <form action="/login" method="POST">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+                <br>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <br>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+    </div>
+
+    <br>
+    <label for="url"></label>
+    <input type="text" id="url" name="url" placeholder="https://example.com" required>
+    <br>
+    <button id="scrapeButton" onclick="scrapeData()">Scrape</button>
+
+    <div class="container">
+        <div class="box">
+            <h2>Email Addresses:</h2>
+            <ul id="email"></ul>
+        </div>
+        <div class="box">
+            <h2>Mobile Number:</h2>
+            <ul id="mobile"></ul>
+        </div>
+        <div class="box">
+            <h2>Social Media Links:</h2>
+            <ul id="social"></ul>
+        </div>
+    </div>
+
+    <script>
+        function openLoginModal() {
+            var modal = document.getElementById("loginModal");
+            modal.style.display = "block";
+        }
+
+        function closeLoginModal() {
+            var modal = document.getElementById("loginModal");
+            modal.style.display = "none";
+        }
+
+        function scrapeData() {
+            var url = document.getElementById("url").value;
+            fetch("/scrape", {
+                method: "POST",
+                body: new URLSearchParams({ url }),
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display scraped data in the respective boxes
+                var emailBox = document.getElementById("email");
+                var mobileBox = document.getElementById("mobile");
+                var socialBox = document.getElementById("social");
+        
+                // Clear the content of the boxes
+                emailBox.innerHTML = "";
+                mobileBox.innerHTML = "";
+                socialBox.innerHTML = "";
+        
+                // Append new data to the boxes
+                if (data.email.length > 0) {
+                    emailBox.innerHTML += "<ul><li>" + data.email.join("</li><li>") + "</li></ul>";
+                }
+        
+                if (data.mobile.length > 0) {
+                    mobileBox.innerHTML += "<ul><li>" + data.mobile.join("</li><li>") + "</li></ul>";
+                }
+        
+                if (data.social.length > 0) {
+                    socialBox.innerHTML += "<ul><li>" + data.social.join("</li><li>") + "</li></ul>";
+                }
+            })
+            .catch(error => console.log("Error:", error));
+        }
+        
+    </script>
+</body>
+</html>
